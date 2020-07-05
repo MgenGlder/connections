@@ -82,11 +82,17 @@ def generateConnectionsDictionary(input):
                 items[addressTupleVariation1] = ConnectionInfo([connectionType], None, [ip1, ip2], [port1, port2])
     return items
 
-
+def processConnectionsDictionary(dict):
+    f = open("connections.txt", "w")
+    for key, value in dict.items():
+        print("Item: ", value)
+        # f.write()
+        print(value.addresses[0] + "|" + value.ports[0] + "|" + value.addresses[1] + "|" + value.ports[1] + "|")
 
 def main():
-    input = open("bad_scan", "r")
-    generateConnectionsDictionary(input)
+    input = open("skimmed_input", "r")
+    dict = generateConnectionsDictionary(input)
+    processConnectionsDictionary(dict)
     input.close()
 
 if __name__ == "__main__":
