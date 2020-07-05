@@ -1,0 +1,6 @@
+08/26-20:26:32.335638  [**] [1:2000001:0] ICMP Activity detected [**] [Priority: 0] {ICMP} 192.168.0.1 -> 192.168.0.99
+08/26-20:26:32.335638  [**] [1:2000000:0] Activity detected [**] [Priority: 0] {ICMP} 192.168.0.1 -> 192.168.0.99
+08/26-20:26:32.335638  [**] [1:469:3] ICMP PING NMAP [**] [Classification: Attempted Information Leak] [Priority: 2] {ICMP} 192.168.0.1 -> 192.168.0.99
+08/26-20:26:32.335638  [**] [1:384:5] ICMP PING [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.0.1 -> 192.168.0.99
+08/26-20:26:32.335671  [**] [1:2000001:0] ICMP Activity detected [**] [Priority: 0] {ICMP} 192.168.0.254 -> 192.168.0.99
+08/26-20:26:32.335671  [**] [1:2000000:0] Activity detected [**] [Priority: 0] {ICMP} 192.168.0.254 -> 192.168.0.99
