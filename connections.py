@@ -1,5 +1,12 @@
 import re
 
+logMode = False
+def logPrint(stringToPrint, optionalParameter = None):
+    if(logMode == True):
+        if(optionalParameter == None):
+            print(stringToPrint)
+        else:
+            print(stringToPrint, optionalParameter)
 
 def hasType(type, stringToCheck):
     return stringToCheck.find(type) != -1
@@ -17,10 +24,10 @@ def determineConnectionType(stringToCheck):
     labels = [c, o, i]
     filtered = list(filter(filterFunction, labels))
     if (len(filtered) > 1):
-        print("There was an error,Too many labels applied to packet", filtered)
+        logPrint("There was an error,Too many labels applied to packet", filtered)
         # raise Error("Too many labels applied to packet")
     elif (len(filtered) < 1):
-        print("There was an error, too few labels applied to packet", filtered)
+        logPrint("There was an error, too few labels applied to packet", filtered)
         # raise Error("Too few labels applied to packet")
     else:
         if (c == True):
@@ -58,42 +65,68 @@ def generateConnectionsDictionary(input):
             ip2 = p.search(line).group(3)
             port2 = p.search(line).group(4)
             connectionType = determineConnectionType(line)
-            print(ip1)
-            print(port1)
-            print(ip2)
-            print(port2)
-            print("Label is.. ", determineConnectionType(line))
+            logPrint(ip1)
+            logPrint(port1)
+            logPrint(ip2)
+            logPrint(port2)
+            logPrint("Label is.. ", determineConnectionType(line))
             addressTupleVariation1 = (ip1, ip2)
             addressTupleVariation2 = (ip2, ip1)
             if (addressTupleVariation1 in items):
-                print("found it")
+                logPrint("found it")
                 types = items[addressTupleVariation1].connection_types
                 if (connectionType not in types):
-                    print("Didn't have this connection type, so added it: ", connectionType)
+                    logPrint("Didn't have this connection type, so added it: ", connectionType)
                     types.append(connectionType)
             elif (addressTupleVariation2 in items):
                 types = items[addressTupleVariation2].connection_types
-                print("found it")
+                logPrint("found it")
                 if (connectionType not in types):
-                    print("Didn't have this connection type, so added it: ", connectionType)
+                    logPrint("Didn't have this connection type, so added it: ", connectionType)
                     types.append(connectionType)
             else:
-                print("didn't find it, so adding")
+                logPrint("didn't find it, so adding")
                 items[addressTupleVariation1] = ConnectionInfo([connectionType], None, [ip1, ip2], [port1, port2])
     return items
+
+def determineLabel(connectionInfo):
+    if("cnc" in connectionInfo.connection_types):
+        if ("infection" not in connectionInfo.connection_types):
+            connectionInfo.connection_label = "cnc"
+        else:
+            logPrint(connectionInfo.connection_types)
+            raise Error("Cnc and infection types on one packet")
+    elif("infection" in connectionInfo.connection_types):
+        if("cnc" not in connectionInfo.connection_types):
+            connectionInfo.connection_label = "infection"
+        else:
+            logPrint(connectionInfo)
+            raise Error("Infection and cnc types on one packet")
+    elif("other" in connectionInfo.connection_types):
+        connectionInfo.connection_label = "other"
+    else:
+        logPrint(connectionInfo.connection_types)
+        raise Error("Found a packet without a valid connection type")
+
 
 def processConnectionsDictionary(dict):
     f = open("connections.txt", "w")
     for key, value in dict.items():
-        print("Item: ", value)
+        determineLabel(value)
+        # print("Item: ", value)
         # f.write()
-        print(value.addresses[0] + "|" + value.ports[0] + "|" + value.addresses[1] + "|" + value.ports[1] + "|")
+        print(value.addresses[0] + "|" + value.ports[0] + "|" + value.addresses[1] + "|" + value.ports[1] + "|" + value.connection_label)
 
 def main():
-    input = open("skimmed_input", "r")
+    if (logMode):
+        print("Log mode is enabled")
+    else:
+        print("Log mode is disabled")
+    input = open("bad_benign", "r")
     dict = generateConnectionsDictionary(input)
     processConnectionsDictionary(dict)
     input.close()
 
 if __name__ == "__main__":
     main()
+
