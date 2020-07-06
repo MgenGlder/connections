@@ -1,6 +1,7 @@
 import re
 
 logMode = False
+countDict = {"cnc": 0, "infection": 0, "other": 0}
 def logPrint(stringToPrint, optionalParameter = None):
     if(logMode == True):
         if(optionalParameter == None):
@@ -59,7 +60,7 @@ def generateConnectionsDictionary(input):
         # Also should check for empty lines
         s = re.search('\{TCP\}', line)
         if (s != None):
-            p = re.compile("(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):?(\d{0,9})\s->\s(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):?(\d{0,9})")
+            p = re.compile("((?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):([0-9]+)\s->\s((?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):([0-9]+)")
             ip1 = p.search(line).group(1)
             port1 = p.search(line).group(2)
             ip2 = p.search(line).group(3)
@@ -111,20 +112,23 @@ def determineLabel(connectionInfo):
 
 def processConnectionsDictionary(dict):
     f = open("connections.txt", "w")
+
     for key, value in dict.items():
         determineLabel(value)
+        countDict[value.connection_label] += 1
         # print("Item: ", value)
         # f.write()
-        print(value.addresses[0] + "|" + value.ports[0] + "|" + value.addresses[1] + "|" + value.ports[1] + "|" + value.connection_label)
+        f.writelines(value.addresses[0] + "|" + value.ports[0] + "|" + value.addresses[1] + "|" + value.ports[1] + "|" + value.connection_label + "\n")
 
 def main():
     if (logMode):
         print("Log mode is enabled")
     else:
         print("Log mode is disabled")
-    input = open("bad_benign", "r")
+    input = open("bad_legit", "r")
     dict = generateConnectionsDictionary(input)
     processConnectionsDictionary(dict)
+    print(countDict)
     input.close()
 
 if __name__ == "__main__":
