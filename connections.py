@@ -2,6 +2,7 @@ import re
 
 logMode = False
 countDict = {"cnc": 0, "infection": 0, "other": 0}
+countConnectionTypes = {"cnc": 0, "infection": 0, "other": 0, "unknown": 0}
 def logPrint(stringToPrint, optionalParameter = None):
     if(logMode == True):
         if(optionalParameter == None):
@@ -60,19 +61,20 @@ def generateConnectionsDictionary(input):
         # Also should check for empty lines
         s = re.search('\{TCP\}', line)
         if (s != None):
-            p = re.compile("((?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):([0-9]+)\s->\s((?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):([0-9]+)")
+            p = re.compile("((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])):([0-9]+)\s->\s((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])):([0-9]+)")
             ip1 = p.search(line).group(1)
             port1 = p.search(line).group(2)
             ip2 = p.search(line).group(3)
             port2 = p.search(line).group(4)
             connectionType = determineConnectionType(line)
+            countConnectionTypes[connectionType] += 1
             logPrint(ip1)
             logPrint(port1)
             logPrint(ip2)
             logPrint(port2)
             logPrint("Label is.. ", determineConnectionType(line))
-            addressTupleVariation1 = (ip1, ip2)
-            addressTupleVariation2 = (ip2, ip1)
+            addressTupleVariation1 = (ip1+port1, ip2+port2)
+            addressTupleVariation2 = (ip2+port2, ip1+port1)
             if (addressTupleVariation1 in items):
                 logPrint("found it")
                 types = items[addressTupleVariation1].connection_types
@@ -125,10 +127,11 @@ def main():
         print("Log mode is enabled")
     else:
         print("Log mode is disabled")
-    input = open("bad_legit", "r")
+    input = open("result_after_all_rules", "r")
     dict = generateConnectionsDictionary(input)
     processConnectionsDictionary(dict)
     print(countDict)
+    print(countConnectionTypes)
     input.close()
 
 if __name__ == "__main__":
